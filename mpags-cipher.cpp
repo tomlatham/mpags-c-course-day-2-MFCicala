@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 // Our project headers
 #include "TransformChar.hpp"
@@ -20,11 +21,13 @@ int main(int argc, char* argv[])
   // Options that might be set by the command-line arguments
   bool helpRequested {false};
   bool versionRequested {false};
+  bool iFile {false};
+  bool oFile {false};
   std::string inputFile {""};
   std::string outputFile {""};
  
   // Call processCommandLine function to handle command-line arguments
-  bool process = processCommandLine(cmdLineArgs, helpRequested, versionRequested, inputFile, outputFile);
+  bool process = processCommandLine(cmdLineArgs, helpRequested, versionRequested, iFile, oFile, inputFile, outputFile);
   if (process == false) 
     {
       return 1;
@@ -68,22 +71,53 @@ int main(int argc, char* argv[])
               << "') not implemented yet, using stdin\n";
   }
 
-  // Loop over each character from user input
+
+ // Loop over each character from user input
   // (until Return then CTRL-D (EOF) pressed)
-  while(std::cin >> inputChar)
+  if (iFile == true)
     {
-      inputText = transformChar(inputChar);
-      
-      // Output the transliterated text
-      // Warn that output file option not yet implemented
-      if (!outputFile.empty()) {
-	std::cout << "[warning] output to file ('"
-		  << outputFile
-		  << "') not implemented yet, using stdout\n";
+      std::ifstream in_file {inputFile};
+      bool ok_to_read = in_file.good();
+      if(ok_to_read == true)
+	{
+	  while (in_file >> inputChar)
+	    {
+	      inputText = transformChar(inputChar);
+	    }
+	}else
+	{
+	  std::cout << "Cannot open input file \n";
+	}
+    }
+  {
+    while(std::cin >> inputChar)
+      {
+	inputText = transformChar(inputChar);
       }
-      
-      std::cout << inputText << std::endl;
-      
+    
+    // Output the transliterated text
+    // Warn that output file option not yet implemented
+    if (!outputFile.empty()) {
+      std::cout << "[warning] output to file ('"
+		<< outputFile
+		<< "') not implemented yet, using stdout\n";
+    }
+    
+      if (oFile == true)
+	{
+	  std::ofstream out_file {outputFile, std::ios::app};
+	  bool ok_to_write = out_file.good();
+	  if(ok_to_write == true)
+	    {
+	      out_file << inputText << "\n";
+	    }else
+	    {
+	      std::cout << "Cannot open output file \n";
+	    }
+	}else
+	{
+	  std::cout << inputText << std::endl;
+	}
       // No requirement to return from main, but we do so for clarity
       // and for consistency with other functions
       return 0;

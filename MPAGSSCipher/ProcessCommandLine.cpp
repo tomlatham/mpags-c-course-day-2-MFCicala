@@ -10,6 +10,8 @@
 bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 			bool& helpRequested,
 			bool& versionRequested,
+			bool& iFile,
+			bool& oFile,
 			std::string& inputFileName,
 			std::string& outputFileName)
 {
@@ -20,6 +22,10 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
      bool& helpRequested:              reference to helpRequested flag
 
      bool& versionRequested:           reference to versionRequested flag
+
+     bool& iFile                       reference to inputFile flag
+     
+     bool& oFile                       reference to outputFile flag
 
      std::string& inputFileName:       reference to inputFileName string 
 
@@ -56,6 +62,7 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
       else {
 	// Got filename, so assign value and advance past it
 	inputFileName = cmdLineArgs[i+1];
+	iFile = true;
 	++i;
       }
     }
@@ -70,6 +77,7 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
       else {
 	// Got filename, so assign value and advance past it
 	outputFileName = cmdLineArgs[i+1];
+	oFile = true;
 	++i;
       }
     }
