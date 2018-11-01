@@ -7,11 +7,9 @@
 bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 			bool& helpRequested,
 			bool& versionRequested,
-			bool& iFile,
-			bool& oFile,
 			bool& encrypt,
 			bool& decrypt,
-			std::string& k,
+			std::string& key,
 			std::string& inputFileName,
 			std::string& outputFileName);
 

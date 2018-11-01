@@ -22,17 +22,14 @@ int main(int argc, char* argv[])
   // Options that might be set by the command-line arguments
   bool helpRequested {false};
   bool versionRequested {false};
-  bool iFile {false};
-  bool oFile {false};
   bool encrypt {false};
   bool decrypt {false};
   std::string inputFile {""};
   std::string outputFile {""};
-  std::string k {""};
-  unsigned long int key {0};
+  std::string key {""};
  
   // Call processCommandLine function to handle command-line arguments
-  bool process = processCommandLine(cmdLineArgs, helpRequested, versionRequested, iFile, oFile, encrypt, decrypt, k, inputFile, outputFile);
+  bool process { processCommandLine(cmdLineArgs, helpRequested, versionRequested, encrypt, decrypt, key, inputFile, outputFile) };
   if (process == false) 
     {
       return 1;
@@ -55,7 +52,7 @@ int main(int argc, char* argv[])
       << "  -d               Decrypt text, provide encription key after this argument\n"; 
     // Help requires no further action, so return from function
     // with true used to indicate success
-    return true;
+    return 0;
   }
 
 // Handle version, if requested
@@ -63,7 +60,7 @@ int main(int argc, char* argv[])
   // so return from function with true to indicate success
   if (versionRequested) {
     std::cout << "0.1.0" << std::endl;
-    return true;
+    return 0;
   }
 
   // Initialise variables for processing input and output text
@@ -72,17 +69,9 @@ int main(int argc, char* argv[])
   std::string outputText {""};
 
   // Read in user input from stdin/file
-  // Warn that input file option not yet implemented
-  if (!inputFile.empty()) {
-    std::cout << "[warning] input from file ('"
-              << inputFile
-              << "') not implemented yet, using stdin\n";
-  }
-
-
- // Loop over each character from user input
+  // Loop over each character from user input
   // (until Return then CTRL-D (EOF) pressed)
-  if (iFile == true)
+  if (!inputFile.empty())
     {
       std::ifstream in_file {inputFile};
       bool ok_to_read = in_file.good();
@@ -90,58 +79,62 @@ int main(int argc, char* argv[])
 	{
 	  while (in_file >> inputChar)
 	    {
-	      inputText = transformChar(inputChar);
+	      inputText += transformChar(inputChar);
 	    }
 	}else
 	{
-	  std::cout << "Cannot open input file \n";
+	  std::cerr << "[error] Cannot open input file \n";
+	  return 1;
 	}
     }
-  {
-    while(std::cin >> inputChar)
-      {
-	inputText = transformChar(inputChar);
-      }
+  else
+    {
+      while(std::cin >> inputChar)
+        {
+	  inputText += transformChar(inputChar);
+        }
+    }
 
 
     // Encription or decryption
 
     if (encrypt || decrypt)
       {
-	key = stoul(k);
-	outputText = runCaesarCipher(inputText, key, encrypt);
-      }else
+	if ( key.front() == '-' ) {
+	  std::cerr << "[error] key must be positive integer" << std::endl;
+	  return 1;
+	}
+	unsigned long int caesar_key { std::stoul(key) };
+	outputText = runCaesarCipher(inputText, caesar_key, encrypt);
+      }
+    else
       {
 	outputText = inputText;
       }
     
     // Output the transliterated text
-    // Warn that output file option not yet implemented
-    if (!outputFile.empty()) {
-      std::cout << "[warning] output to file ('"
-		<< outputFile
-		<< "') not implemented yet, using stdout\n";
-    }
-    
-      if (oFile == true)
-	{
-	  std::ofstream out_file {outputFile, std::ios::app};
-	  bool ok_to_write = out_file.good();
-	  if(ok_to_write == true)
-	    {
-	      out_file << outputText << "\n";
-	    }else
-	    {
-	      std::cout << "Cannot open output file \n";
-	    }
-	}else
-	{
-	  std::cout << outputText << std::endl;
-	}
+    if (!outputFile.empty())
+      {
+	std::ofstream out_file {outputFile};
+	bool ok_to_write = out_file.good();
+	if(ok_to_write == true)
+	  {
+	    out_file << outputText << "\n";
+	  }
+	else
+	  {
+	    std::cerr << "[error] Cannot open output file \n";
+	    return 1;
+	  }
+      }
+    else
+      {
+	std::cout << outputText << std::endl;
+      }
+
       // No requirement to return from main, but we do so for clarity
       // and for consistency with other functions
       return 0;
-    }
 }
 
 

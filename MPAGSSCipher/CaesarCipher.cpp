@@ -11,70 +11,42 @@
 std::string runCaesarCipher(const std::string& inputText, const size_t key, const bool encrypt)
 {
   // Create the alphabet container and output string
-  char alphabet[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
-  std::string outputText {""};
-  int inputTextLength = inputText.length();
-  outputText.resize(inputTextLength);
+  const std::vector<char> alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+  const size_t alphabetSize {alphabet.size()};
 
-  //Encryption option:
-  if(encrypt)
+  std::string outputText {""};
+  outputText.reserve(inputText.length());
+
+  // Make sure that the key is in the range 0 - 25
+  const size_t truncatedKey { key % alphabetSize };
+
+  // Loop over the input text
+  for ( const char& inputChar : inputText )
     {
-    // Loop over the input text
-      for (int i = 0;  i <= inputTextLength; i++)
-	{
-	  // For each character find the corresponding position in the alphabet
-	  int j = 0;
-	  while(j < 25)
+      // For each character find the corresponding position in the alphabet
+      for ( size_t j {0}; j < alphabetSize; ++j )
+        {
+	  if(inputChar == alphabet[j])
 	    {
-	      if(inputText[i] == alphabet[j])
-		{
-		  // Apply the +ve shift to the position, handling correctly potential wrap-around
-		  int needWrap = 25-key;
-		  if(j< needWrap)
-		    {
-		      int place = j+key;
-		      // Determine the new character and add it to the output string
-		      outputText[i] = alphabet[place];
-		    }else
-		    {
-		      int difference = (j+key)-25;
-		      // Determine the new character and add it to the output string
-		      outputText[i] = alphabet[difference];
-		    }
+	      // Apply the shift to the position, handling correctly potential wrap-around
+	      if( encrypt )
+	        {
+		  const size_t place = (j + truncatedKey) % alphabetSize;
+		  // Determine the new character and add it to the output string
+		  outputText += alphabet[place];
 		}
-	      j++;
+	      else
+	        {
+		  const size_t place = (j + alphabetSize - truncatedKey) % alphabetSize;
+		  // Determine the new character and add it to the output string
+		  outputText += alphabet[place];
+		}
+
+	      break;
 	    }
 	}
-    }else
-    //Decryption option:
-    {
-     // Loop over the input text
-      for (int i = 0; i <= inputTextLength; i++)
-	{
-	  // For each character find the corresponding position in the alphabet
-	  int j = 25;
-	  while(j > 0)
-	    {
-	      if(inputText[i] == alphabet[j])
-		{
-		  // Apply the -ve shift to the position, handling correctly potential wrap-around
-		  int needWrap = 25-key;
-		  if(j < needWrap)
-		    {
-		      int place = j-key;
-		      // Determine the new character and add it to the output string
-		      outputText[i] = alphabet[place];
-		    }else
-		    {
-		      int difference = 25-(key-j);
-		      // Determine the new character and add it to the output string
-		      outputText[i] = alphabet[difference];
-		    }
-		}
-	      j--;
-	    }
-	} 
     }
-      // Finally (after the loop), return the output string
-      return outputText;
+
+  // Finally (after the loop), return the output string
+  return outputText;
 }

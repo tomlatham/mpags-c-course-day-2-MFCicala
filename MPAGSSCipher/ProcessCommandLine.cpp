@@ -10,11 +10,9 @@
 bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 			bool& helpRequested,
 			bool& versionRequested,
-			bool& iFile,
-			bool& oFile,
 			bool& encrypt,
 			bool& decrypt,
-			std::string& k,
+			std::string& key,
 			std::string& inputFileName,
 			std::string& outputFileName)
 {
@@ -26,15 +24,11 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 
      bool& versionRequested:           reference to versionRequested flag
 
-     bool& iFile                       reference to inputFile flag
-     
-     bool& oFile                       reference to outputFile flag
-     
      bool& encrypt                     reference to encryption flag
 
      bool& decrypt                     reference to decryption flag
 
-     std::string& k:                   reference to k string
+     std::string& key:                 reference to key string
 
      std::string& inputFileName:       reference to inputFileName string 
 
@@ -63,10 +57,17 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 	  // exit main with false return to indicate failure
 	  return false;
 	}
+	else if (decrypt == true) {
+	  // Can't have both the encrypt and decrypt options present
+	  std::cerr << "[error] cannot provide both -e and -d options" << std::endl;
+	  // exit main with false return to indicate failure
+	  return false;
+	}
 	else {
 	  // Got key so assign it and advance past it
 	  encrypt = true;
-	  k = cmdLineArgs[i+1];
+	  key = cmdLineArgs[i+1];
+	  ++i;
 	}
       }else if (cmdLineArgs[i] == "-d")
       {
@@ -77,10 +78,17 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 	  // exit main with false return to indicate failure
 	  return false;
 	}
+	else if (encrypt == true) {
+	  // Can't have both the encrypt and decrypt options present
+	  std::cerr << "[error] cannot provide both -e and -d options" << std::endl;
+	  // exit main with false return to indicate failure
+	  return false;
+	}
 	else {
 	  // Got key so assign it and advance past it
 	  decrypt = true;
-	  k = cmdLineArgs[i+1];
+	  key = cmdLineArgs[i+1];
+	  ++i;
 	}
       }else if (cmdLineArgs[i] == "-h" || cmdLineArgs[i] == "--help") {
       helpRequested = true;
@@ -99,7 +107,6 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
       else {
 	// Got filename, so assign value and advance past it
 	inputFileName = cmdLineArgs[i+1];
-	iFile = true;
 	++i;
       }
     }
@@ -114,7 +121,6 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
       else {
 	// Got filename, so assign value and advance past it
 	outputFileName = cmdLineArgs[i+1];
-	oFile = true;
 	++i;
       }
     }
