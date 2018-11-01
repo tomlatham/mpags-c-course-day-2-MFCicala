@@ -7,6 +7,7 @@
 // Our project headers
 #include "TransformChar.hpp"
 #include "ProcessCommandLine.hpp"
+#include "CaesarCipher.hpp"
 
 // For std::isalpha and std::isupper
 #include <cctype>
@@ -23,11 +24,15 @@ int main(int argc, char* argv[])
   bool versionRequested {false};
   bool iFile {false};
   bool oFile {false};
+  bool encrypt {false};
+  bool decrypt {false};
   std::string inputFile {""};
   std::string outputFile {""};
+  std::string k {""};
+  unsigned long int key {0};
  
   // Call processCommandLine function to handle command-line arguments
-  bool process = processCommandLine(cmdLineArgs, helpRequested, versionRequested, iFile, oFile, inputFile, outputFile);
+  bool process = processCommandLine(cmdLineArgs, helpRequested, versionRequested, iFile, oFile, encrypt, decrypt, k, inputFile, outputFile);
   if (process == false) 
     {
       return 1;
@@ -45,7 +50,9 @@ int main(int argc, char* argv[])
       << "  -i FILE          Read text to be processed from FILE\n"
       << "                   Stdin will be used if not supplied\n\n"
       << "  -o FILE          Write processed text to FILE\n"
-      << "                   Stdout will be used if not supplied\n\n";
+      << "                   Stdout will be used if not supplied\n\n"
+      << "  -e               Encrypt text, provide encription key after this argument\n"
+      << "  -d               Decrypt text, provide encription key after this argument\n"; 
     // Help requires no further action, so return from function
     // with true used to indicate success
     return true;
@@ -59,9 +66,10 @@ int main(int argc, char* argv[])
     return true;
   }
 
-  // Initialise variables for processing input text
+  // Initialise variables for processing input and output text
   char inputChar {'x'};
   std::string inputText {""};
+  std::string outputText {""};
 
   // Read in user input from stdin/file
   // Warn that input file option not yet implemented
@@ -94,6 +102,18 @@ int main(int argc, char* argv[])
       {
 	inputText = transformChar(inputChar);
       }
+
+
+    // Encription or decryption
+
+    if (encrypt || decrypt)
+      {
+	key = stoul(k);
+	outputText = runCaesarCipher(inputText, key, encrypt);
+      }else
+      {
+	outputText = inputText;
+      }
     
     // Output the transliterated text
     // Warn that output file option not yet implemented
@@ -109,14 +129,14 @@ int main(int argc, char* argv[])
 	  bool ok_to_write = out_file.good();
 	  if(ok_to_write == true)
 	    {
-	      out_file << inputText << "\n";
+	      out_file << outputText << "\n";
 	    }else
 	    {
 	      std::cout << "Cannot open output file \n";
 	    }
 	}else
 	{
-	  std::cout << inputText << std::endl;
+	  std::cout << outputText << std::endl;
 	}
       // No requirement to return from main, but we do so for clarity
       // and for consistency with other functions

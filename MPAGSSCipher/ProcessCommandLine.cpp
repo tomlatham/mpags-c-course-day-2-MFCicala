@@ -12,6 +12,9 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 			bool& versionRequested,
 			bool& iFile,
 			bool& oFile,
+			bool& encrypt,
+			bool& decrypt,
+			std::string& k,
 			std::string& inputFileName,
 			std::string& outputFileName)
 {
@@ -26,6 +29,12 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
      bool& iFile                       reference to inputFile flag
      
      bool& oFile                       reference to outputFile flag
+     
+     bool& encrypt                     reference to encryption flag
+
+     bool& decrypt                     reference to decryption flag
+
+     std::string& k:                   reference to k string
 
      std::string& inputFileName:       reference to inputFileName string 
 
@@ -35,7 +44,7 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
   */
 
 
-  std::cout<<"In function now \n!";
+  //std::cout<<"In function now \n!";
 
  // Add a typedef that assigns another name for the given type for clarity
   typedef std::vector<std::string>::size_type size_type;
@@ -45,7 +54,35 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
   // be the program name and don't need to worry about it
   for (size_type i {1}; i < nCmdLineArgs; ++i) {
 
-    if (cmdLineArgs[i] == "-h" || cmdLineArgs[i] == "--help") {
+    if (cmdLineArgs[i] == "-e")
+      {
+	// Handle encrypt option
+	// Next element is key unless -i is the last argument
+	if (i == nCmdLineArgs-1) {
+	  std::cerr << "[error] -e requires a key argument" << std::endl;
+	  // exit main with false return to indicate failure
+	  return false;
+	}
+	else {
+	  // Got key so assign it and advance past it
+	  encrypt = true;
+	  k = cmdLineArgs[i+1];
+	}
+      }else if (cmdLineArgs[i] == "-d")
+      {
+	// Handle decrypt option
+	// Next element is key unless -i is the last argument
+	if (i == nCmdLineArgs-1) {
+	  std::cerr << "[error] -d requires a key argument" << std::endl;
+	  // exit main with false return to indicate failure
+	  return false;
+	}
+	else {
+	  // Got key so assign it and advance past it
+	  decrypt = true;
+	  k = cmdLineArgs[i+1];
+	}
+      }else if (cmdLineArgs[i] == "-h" || cmdLineArgs[i] == "--help") {
       helpRequested = true;
     }
     else if (cmdLineArgs[i] == "--version") {

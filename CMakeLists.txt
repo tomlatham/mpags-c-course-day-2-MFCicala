@@ -11,7 +11,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 14)
 
 # - Declare the build of mpags-cipher main program
-add_executable(mpags-cipher mpags-cipher.cpp MPAGSSCipher/TransformChar.cpp MPAGSSCipher/ProcessCommandLine.cpp)
+add_executable(mpags-cipher mpags-cipher.cpp MPAGSSCipher/TransformChar.cpp MPAGSSCipher/ProcessCommandLine.cpp MPAGSSCipher/CaesarCipher.cpp)
 
 target_include_directories(mpags-cipher
 PRIVATE MPAGSSCipher
